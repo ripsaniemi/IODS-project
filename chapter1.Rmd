@@ -1,4 +1,8 @@
 
 # About the project
 
-*Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you can use R Markdown syntax.*
+During this course I'd like to become more comfortable using R and it's packages. I've done a few courses with R already, but I still hava a lot to learn. I am excited to do analyses with different data sets and also learn to __visualize__ and to edit data. My friend did this course last year and she recommended it to me.  
+
+***  
+
+My GitHub repository  [can be found here](https://github.com/ripsaniemi/IODS-project).
