@@ -1,9 +1,8 @@
 # Week 2: Linear regression
 
+### 1)
+### Exploring the datasets of the week
 
-## Exploring the datasets of the week
-
-## 1)
 
 ```{r} 
 
@@ -27,7 +26,8 @@ Data has __166 observations and 7 variables__:
 * surf (mean of "Surface approach" questions measuring Lack of purpose, Unrelated memorising, sullabys-boudness)
 * points (Exam points)
 
-## 2)
+### 2)
+### Summary and relationships between variables
 
 ```{r}
 library(ggplot2)
@@ -49,10 +49,10 @@ Highest (absolute) correlations are between variables points - attitude, deep - 
 
 Summary function shows us that approximately 2/3 of people answering the survey are female. Mean age of pariticipants is 25.5 years old and mean points from exam was 22.7 and mean on attitude 31.4.
 
-## 3)
-## Finding explanatory variables to Points
+### 3)
+### Finding explanatory variables to Points
 
-We see that the tree variables that have the highest (absolute) correlation with points are attitude, stra and surf. Lets start with a linear regression with those three as explanatory variables:
+We see that the three variables that have the highest (absolute) correlation with points are attitude, stra and surf. Lets start with a linear regression with those three as explanatory variables:
 
 ```{r}
 
@@ -60,12 +60,12 @@ r1 <- lm(points ~ attitude + stra + surf, data = data)
 summary(r1)
 
 ```
-Our p-value is 3.125e-08, so this there is statistically significant relationship between explanotory variables with points. In this model alpha would be 11.02, beeta1 0.34, beeta2 0.85 and beeta3 -0.59.
+Our p-value is 3.125e-08, so this there is statistically significant relationship between explanatory variables and points. In this model alpha would be 11.02, beeta1 0.34, beeta2 0.85 and beeta3 -0.59.
 
-However, When we look at these three variabes and their, only one of them, attitude, has a statistically significant p-value = 1.93e-08 (<0.05). For this reason, let's take stra and surf out of the regression, since we can conclude that they are not making this model any better.
+However, when we look at these three variabes only one of them, attitude, has a statistically significant p-value = 1.93e-08 (<0.05). For this reason, let's take stra and surf out of the regression, since we can conclude that they are not making this model any better.
 
-## 4)
-## Linear regression with points as dependent variable and attitude as explanatory variable
+### 4)
+### Linear regression with points as dependent variable and attitude as explanatory variable
 
 ```{r}
 
@@ -76,19 +76,19 @@ g2 <- ggplot(data, aes(x = attitude, y = points)) + geom_point() + ggtitle("Line
 g2
 
 ```
-
+P-value is 4.119e-09, so this the relationship is statistically significant.  
   
 If we would want to predict values of points using variable attitude, the model would be     
 y = 11.63715 + 0.35255x  
 where y is points and x attitude.
 
-This means that when attitude increases, points increases as well. This result can be seen through the scatterplot where the regression line is drawn as well.
+This means that when attitude increases, points increases as well. This result can be seen through the scatterplot where the regression line is drawn.
 
 R-squared is 0.19, which means that this model explains 19% of the variation of dependent variable Points.  
 
 
-## 5)
-## Diagnostic plots anfd graphical model validation
+### 5)
+### Diagnostic plots and graphical model validation
 
 ```{r}
 
@@ -97,6 +97,7 @@ plot(r2, which = 2)
 plot(r2, which = 5)
 
 ```
+  
 When we use linear regression we assume that the relationship between x and y is linear. We also assume that the errors are normally distributed and varince is constant: so the errors do not depend on explanatory variable.
 
 Residuals vs Fitted values shows whether variance is constant. Although the points seem to be pretty randomly spread at first, there is a small pattern where on right side the points are not as spread as on the left side. This implies a problem.
