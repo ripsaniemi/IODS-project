@@ -1,0 +1,33 @@
+# Week 3: Logistic regression
+
+## 1)
+
+## 2) Reading the datasets
+
+```{r} 
+
+alc <- read.csv("data/alc.csv")
+
+glimpse(alc)
+
+
+```
+This dataset has 35 variables and 382 observations. It was collected from two Portuguese secondary education schools and has variables about socio-economical background, studying and free time.
+
+## 3) Relationships with high/low alcohol use
+
+I am choosing my variables as goout, studytime, famrel and higher.
+
+My personal hypothesis is that goout affects high_use positively and studytime, higher education, and quality family relationships affect high_use negatively.
+
+
+## 4) Numerical & graphical exploration of the variable distributions and relationship with high_use
+
+```{r}
+
+summary
+
+```
+
+
+
