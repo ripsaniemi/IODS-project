@@ -5,6 +5,7 @@
 ## 2) Reading the datasets
 
 ```{r} 
+library(dplyr)
 
 alc <- read.csv("data/alc.csv")
 
@@ -25,7 +26,7 @@ My personal hypothesis is that goout affects high_use positively and studytime, 
 
 ```{r}
 
-summary
+
 
 ```
 
