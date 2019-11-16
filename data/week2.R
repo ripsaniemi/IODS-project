@@ -52,11 +52,11 @@ glimpse(final_data2)
 
 getwd()
 setwd("C:/Users/ripsa/Documents/IODS-project/data")
-write.csv(final_data2, file="learning2014.cvs", row.names=FALSE)
+write.csv(final_data2, file="data/learning2014.csv", row.names=FALSE)
 
 # And let's check that it works..
 
-test <- read.csv("learning2014.cvs")
+test <- read.csv("learning2014.csv")
 
 str(test)
 head(test) 

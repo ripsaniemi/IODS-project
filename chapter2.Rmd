@@ -6,7 +6,7 @@
 
 ```{r} 
 
-data <- read.csv("data/learning2014.cvs")
+data <- read.csv("data/learning2014.csv")
 
 head(data)
 str(data)
