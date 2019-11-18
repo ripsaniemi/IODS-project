@@ -1,11 +1,13 @@
 # Week 3: Logistic regression
 
-## 1)
+## 1) Starting the week
+
+This week we learn to do logistic regression, first let read the datasets and have a look at it.
 
 ## 2) Reading the datasets
 
 ```{r} 
-library(dplyr)
+library(dplyr); library(ggplot2)
 
 alc <- read.csv("data/alc.csv")
 
@@ -15,20 +17,134 @@ glimpse(alc)
 ```
 This dataset has 35 variables and 382 observations. It was collected from two Portuguese secondary education schools and has variables about socio-economical background, studying and free time.
 
-## 3) Relationships with high/low alcohol use
+I added two variables to dataset: alc_use, which is a mean of daily and weekend alcolhol use (Dalc, Walc) and high_use, which is a binary variable, True if alc_use is over 2, False otherwise. I am using the variable high use as the explained varible y in my logistic regression.
 
-I am choosing my variables as goout, studytime, famrel and higher.
+## 3) Personal hypothesis of relationships with high/low alcohol use and 4 variables
 
-My personal hypothesis is that goout affects high_use positively and studytime, higher education, and quality family relationships affect high_use negatively.
+I am choosing my prediction variables as goout, studytime, absences and higher.
+
+My personal hypothesis is that going out (goout) and having absences at school affect high_use positively, so high numbers imply True High alcohol use.  
+
+Studytime and wanting to go to a higher education (higher) affect high_use negatively, so high numbers in studytime and yes in higher imply False in High alcohol use.
 
 
 ## 4) Numerical & graphical exploration of the variable distributions and relationship with high_use
 
 ```{r}
+g <- ggplot(data = alc, aes(x = high_use, y = studytime, col = sex))
+g  + geom_boxplot() + ggtitle("Studytime and high use")
+
+table(alc$high_use, alc$higher)
+
+g2 <- ggplot(data = alc, aes(x = high_use, y = goout, col = sex)) 
+g2 + geom_boxplot() + ggtitle("Going out and high use")
+
+g3 <- ggplot(data = alc, aes(x = high_use, y = absences, col = sex )) 
+g3 +  geom_boxplot() + ggtitle("Absences and high use")
 
 
 
 ```
+  
+Now let's look at these boxplots and table.
+
+__Studytime and high use:__ Studytime seems to be longer among females, who are not high users. Among males studytime seems to have no relationship with high use.
+
+__Higher education goals and high use:__ Those who said they wish to have higher education are more often not high users (over two times). However not wanting a higher education is not connected to high use, and with small n is hard to say anything at all.
+
+__Going out and high use:__ Withing both sexes, those who go out more, are more often high users. Within males the distribution are more clearly separated withing high use groups.
+
+__Absences and high use:__ There is a small difference between groups, but especially males who are high users have more absences at school. Among females the difference is not as clear.
+
+Overall my hypotheses seem to be okay and in the right direction.
+
+## 5) Fitting the logical regression model
+
+```{r}
+
+m <- glm(high_use ~ higher + studytime + absences + goout, data = alc, family = "binomial")
+
+summary(m)
+
+coef(m)
+
+OR <- coef(m) %>% exp
+
+CI <- confint(m) %>% exp
+
+cbind(OR, CI)
+
+```
+ __Looking at the summary:__  
+ Varibles studytime, absences and gotout have a statistically significant relationship (p < 0.05) with high use. Higher has p.value= 0.66 , thus it could be removed form the model.
+
+Studytime has a negative relationship with high use, so those who study more are less likely to be high users. 
+
+Absences and going out have positive relationship with high use, and goout has the strongest effect. 
+
+So conserning the coeffidents and p-values, my hypothesis seems to right, except that higher was not a good variable to predict high use.
+
+__Confidence intervals:__   
+Higheryes has the widest interval (0.27-2.32), and the confidence interval includes one, which also strongly implies it being a bad predictor variable, since the variable could have both negative and positive effect on high use.
+
+Studytime odds ratio is 0.578, so less than 1, which means it is negatively associated with success, succes being high alcohol user. Absences and goout have odds ratios 1.07 and 2.06, so higher than one, which means they are positively associated with success high use, thus being a high user. This also supports my hypothesis. 
+
+## 6) Predictive power of the model
+
+```{r}
+# Let's drop higher out of the model
+m2 <- glm(high_use ~ studytime + absences + goout, data = alc, family = "binomial")
+
+probabilities <- predict(m2, type = "response")
+
+alc <- mutate(alc, probability = probabilities)
+
+alc <- mutate(alc, prediction = probability > 0.5)
+
+table(high_use = alc$high_use, prediction = alc$prediction)
+
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table() %>% addmargins()
+
+```
+
+When we look at the cross tabulations, we see that the most False high users are classified as false (so prediction works okay). But then most True high users are predicted as False high users, which implies this prediction model doesnt work all the way we would want.
 
 
+```{r}
 
+
+g4 <- ggplot(alc, aes(x = probability, y = high_use, col = prediction))
+g4 + geom_point() + ggtitle("High use and prediction")
+
+```
+
+Plotting reveals the same result. Most False high users are rightly predicted as False high users, but most of those whose high_us is true are not predicted as true high users, although they should be. This implies that the model doesn't work the way it should.
+
+```{r}
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+loss_func(class = alc$high_use, prob = alc$probability)
+
+
+```
+
+The error is 0.230, which means 23% percent of the predictions went wrong.
+
+If we compare this with simple guessing strategy (is someone high user or not), where 1/2 so 50% would go wrong, this model seems to be at least better than just guessing.
+
+
+## 7) Bonus: 10-fold cross-validation
+
+```{r}
+
+library(boot)
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+
+cv$delta[1]
+
+```
+
+I got prediction errors between 0.23-0.25, so an error is bit higher with the testing data compared to the training data. My model has a bit smaller error than the one presented in Datacamp exercise.
