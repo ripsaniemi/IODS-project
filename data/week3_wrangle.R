@@ -1,5 +1,6 @@
 # IODS 15.11.2019 
 # Ripsa Niemi
+# In this R-file I wrangle some data for analysis.
 # data-source: https://archive.ics.uci.edu/ml/datasets/Student+Performance
 
 getwd()
