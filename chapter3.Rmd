@@ -2,7 +2,7 @@
 
 ## 1) Starting the week
 
-This week we learn to do logistic regression, first let read the datasets and have a look at it.
+This week we learn to do logistic regression, first let's read the datasets and have a look at it.
 
 ## 2) Reading the datasets
 
