@@ -3,9 +3,9 @@
 
 ## 2) Getting to know dataset Boston
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message = FALSE}
 
-library(MASS); library(dplyr); library(corrplot)
+library(MASS); library(dplyr); library(corrplot); library(ggplot2); library(GGally)
 
 data("Boston")
 
@@ -17,7 +17,15 @@ This week we use Boston data set from R MASS package.
 
 Boston has 14 variables and 506 observations. 
 
-Variables are crime, which is per capita crime rate in town, and different variables about taxes, socio-economic situation (lstat), distances and infrastucture in town.
+As variables we have for example:  
+- per capita crime rate in town (crim)  
+- taxes (tax)  
+- socio-economic situation (lstat)  
+- distances  (dis)  
+- infrastucture access (rad)  
+- nitrogen oxides concentration (nox)  
+
+More information: [link](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html)
 
 ## 3) Graphical overview and summaries of variables
 
@@ -25,14 +33,145 @@ Variables are crime, which is per capita crime rate in town, and different varia
 
 cor_matrix<-cor(Boston) 
 
-cor_matrix %>% round(digits = 2)
-
 corrplot.mixed(cor_matrix, number.cex = .6)
+
+summary(Boston)
+
+
+```
+  
+Corrplot shows the relationships between variables. Highest positive correlations are between rad and tax, indus and nox and age and nox. Highest negative correlations are between age and dis, lstat and med and dis and nox.
+
+When we look at the summaries of variables, we see that their distributions are very different from eachother. This is why next we need to scale them, so we can do linear discriminant analysis later.
+
+## 4) Scaling dataset and wrangling crime variable
+
+```{r}
+
+boston_scaled <- scale(Boston)
+
+summary(boston_scaled)
+
 ```
 
-Corrplot shows the relationships between variables. Highest positive correlation are between rad and tax, indus and nox and age and nox. Highest negative correlations are between age and dis, lstat and med and dis and nox.
+Scaling data makes variables comparable, when every mean is now zero.
+
+```{r}
+
+# some more data wrangle for variable crime 
+
+boston_scaled <- as.data.frame(boston_scaled)
+
+bins <- quantile(boston_scaled$crim)
+
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, label = c("low", "med_low", "med_high", "high"))
+
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+
+boston_scaled <- data.frame(boston_scaled, crime)
+
+# creating train and test datasets
+
+n <- nrow(boston_scaled)
+
+rows <- sample(n, size = n*0.8)
+
+train <- boston_scaled[rows,]
+
+test <- boston_scaled[-rows,]
+
+
+```
+
+
+## 5) Fitting linear discriminant analysis
+
+```{r}
+
+lda.m <- lda(crime ~ ., data = train)
+lda.m
+
+# and plotting
+# arrows
+
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+classes <- as.numeric(train$crime)
+
+plot(lda.m, dimen = 2, col = classes, pch = classes)
+lda.arrows(lda.m, myscale = 2)
+
+```
+  
+Most clear class seems to be high crime rate. Med_high and med_low classes seem to blend within eachother and low class is also really spread. The variables with biggest effects (longest arrows) are rad, zn and nox.
+
+## 6) Prediction based on the fitted model
+
+```{r}
+
+correct_classes <- test$crime
+
+test <- dplyr::select(test, -crime)
+
+lda.pre <- predict(lda.m, newdata = test)
+
+table(correct = correct_classes, predictions = lda.pre$class)
+
+
+```
+The cross table shows that high values were predicted correctly. In other classes there are more errors, which was also implied from the plot above. This means that training data didnt succeed that well with our model, or that maybe we should think about defining the classes again.
+
+## 7) Clustering
+
+```{r}
+
+# Lets read the data again and scale it
+
+data("Boston")
+
+c_boston_scaled <- scale(Boston)
+
+# Distances with euclidean distance
+dist_eu <- dist(c_boston_scaled)
+
+summary(dist_eu)
+
+```
+
+```{r}
+
+km <- kmeans(c_boston_scaled, centers = 3)
+
+set.seed(123)
+k_max <- 10
+twcss <- sapply(1:k_max, function(k){kmeans(c_boston_scaled, k)$tot.withinss})
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+
+```
+  
+The optimal cluster size is the point where the line drops radically. This seems to be two.
+
+```{r}
+
+# Clustering with two
+
+km2 <- kmeans(c_boston_scaled, centers = 2)
+
+pairs(c_boston_scaled[,1:7], col = km2$cluster)
+pairs(c_boston_scaled[,8:14], col = km2$cluster)
 
 
 
-## 4) 
+```
+  
+So now we have found out, that this dataset could be divided to two clusters.
 
+In the pairs plots we see, that between some variables the clustering works better than with some. Clusters are well seen for example within nox and rm and then not so clear between rad and tax.
