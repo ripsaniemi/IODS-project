@@ -558,7 +558,7 @@ loss_func(class = alc$high_use, prob = alc$probability)</code></pre>
 cv &lt;- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
 
 cv$delta[1]</code></pre>
-<pre><code>## [1] 0.2408377</code></pre>
+<pre><code>## [1] 0.2486911</code></pre>
 <p>I got prediction errors between 0.23-0.25, so an error is bit higher with the testing data compared to the training data. My model has a bit smaller error than the one presented in Datacamp exercise.</p>
 <hr />
 </div>

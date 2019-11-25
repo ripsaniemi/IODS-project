@@ -1,0 +1,38 @@
+# Week 4: Classification and clustering
+
+
+## 2) Getting to know dataset Boston
+
+```{r, echo=FALSE}
+
+library(MASS); library(dplyr); library(corrplot)
+
+data("Boston")
+
+str(Boston)
+
+```
+
+This week we use Boston data set from R MASS package.
+
+Boston has 14 variables and 506 observations. 
+
+Variables are crime, which is per capita crime rate in town, and different variables about taxes, socio-economic situation (lstat), distances and infrastucture in town.
+
+## 3) Graphical overview and summaries of variables
+
+```{r}
+
+cor_matrix<-cor(Boston) 
+
+cor_matrix %>% round(digits = 2)
+
+corrplot.mixed(cor_matrix, number.cex = .6)
+```
+
+Corrplot shows the relationships between variables. Highest positive correlation are between rad and tax, indus and nox and age and nox. Highest negative correlations are between age and dis, lstat and med and dis and nox.
+
+
+
+## 4) 
+
