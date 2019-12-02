@@ -1,0 +1,103 @@
+# Week 5: Dimensionality reduction techniques
+
+This week I'll dive into dimensionality reduction techniques.
+
+## 1) Graphical overview and summaries of the data
+
+``` {r, message = FALSE}
+library(MASS); library(dplyr); library(ggplot2); library(GGally); library(tidyr)
+
+human <- read.csv2(file = "data/human.csv", sep = ",", dec = ".")
+
+str(human)
+
+g1 <- ggpairs(human)
+g1
+
+summary(human)
+
+```
+
+Data has 8 variables and 155 observations, which are countries.
+
+From the pairs plot we see that Life.exp and Edu.exp and Mat.Mor and Ado.Birth have a high positive correlation. Life.exp has a high negative correlation both with Mat.mor & Ado.birth.
+
+From summaries we see that for example there is a high variation in life.exp and edu.exp between observations.
+
+## 2) Principal component analysis (PCA) not standardised
+
+``` {r}
+
+# perform principal component analysis (with the SVD method)
+pca_human <- prcomp(human)
+
+summary(pca_human)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human, choices = 1:2, cex = c(0.7,1), col = c("grey40", "deeppink2"), xlab = "PC1: Maternity mortality", ylab = "PC2: GNI")
+
+
+```
+
+## 3) Same but standardized
+
+```{r}
+
+human_std <- scale(human)
+
+# perform principal component analysis (with the SVD method)
+pca_human_std <- prcomp(human_std)
+
+summary(pca_human_std)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human_std, choices = 1:2, cex = c(0.8,1), col = c("grey40", "deeppink2"), xlab="PC1: Health and education", ylab="PC2: Women in work and public life")
+
+```
+
+Results of the standardized and non-standardized PCA are very different, since on the non standardized version the variabels with very high values get more weight in the analysis.
+
+The non-standarized PC1 has Mat.Mor as a contributor, and PC2 GNI as a contributor. Both of them have really high standard deviations 214.3 and 54.5, which is caused by the missing scaling and high deviation of Mat.Mor and GNI.
+
+Then on the scaled PC1 and PC2 the sd:s are  1.966 and 1.1388, which is a lot better. Therefor scaled Principal components have more contributing variables, when Mat.mor and GNI are not overweighting anymore.
+
+## 4) Personal interpretation on the standardized PC1 ans PC2
+
+Mat.Mor, Ado.Birth, Edu.Exp, Edu2.FM, GNI and Life.Exp are pointing on PC1 axis, so they contribute to Principal component 1. This means that PC1 consist about Health related variables (life expectency, maternity mortality) and education (ratio and expected time).
+
+Parli.F and Labo.FM are pointing towards PC2 axis, which mean they contribute to Principal component 2. This means PC2 consist of womens repsentation in the work and official public life.
+
+## 5) Multiple Correspondence Analysis
+
+``` {r}
+
+library(FactoMineR)
+
+data("tea")
+
+str(tea)
+
+# visualizing variables home, work, tearoom, friends, resto, pub, Tea, How, sugar
+gather(tea[,7:15]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+
+```
+  
+Tea is a dataset of different factor variables (36) connected to tea drinking on 300 observations.
+
+```{r}
+
+# MCA with variables: home, work, tearoom, friends, resto, pub, Tea, How, sugar
+mca <- MCA(tea[,7:15], graph = FALSE)
+
+# summary of the model
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage = "quali")
+
+
+
+```
+
+MCA biplot shows variable patterns. We see that different not factor values are similar (not.friends, not.restoraunt, not.tearoom, not.pub and alone) which imply to drinking tea alone and not in public places. Not.home is far from other variables. Earl Grey and sugar also seem to go together.
+
