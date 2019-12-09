@@ -42,7 +42,7 @@ ggplot(RATSL, aes(x = Time, y = weight, linetype = ID)) +
 
 ```
   
-We see that in all groups the weigth seems to increase when time increases. In groups 2 and 3 increase is more clear. Graph shows us that there seems to be a difference at least between Group 1 vs other Groups. Groups 2 ja 3 are more similar. In Group 2 there is one unsual individual, who we migth delete later.
+We see that in all groups the weigth seems to increase when time increases. In groups 2 and 3 increase is more clear. Graph shows us that there seems to be a difference in baseline weights at least between Group 1 vs other Groups. Groups 2 ja 3 are more similar. In every group there is one unsual individual, who we migth delete later.
 
 ### Standardized graphs
 ``` {r}
