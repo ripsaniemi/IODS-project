@@ -142,6 +142,7 @@ Now without those three observations, the group summaries look very good.
 
 Next we can test the group growth difference with t-test.
 
+### Two sample t-test, linear model and anova
 ``` {r}
 
 # Perform a two-sample t-test
