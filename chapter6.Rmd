@@ -1,7 +1,7 @@
 # Week 6: Analysis of longitudinal data
 
-## Reading the datasets and factoring some vars again
-```{r}
+## Reading the datasets, factoring and structures
+```{r, message = FALSE}
 
 library(ggplot2); library(dplyr); library(tidyr)
 
@@ -23,13 +23,10 @@ three groups differ.
 
 In BPRS data we had two different treatment groups, whose BPRS (the psychiatric rating scale) was measured on 9 weeks. The question of interest is whether two different treatments differed.
 
-Todo
-Implement the analyses of Chapter 8 of MABS using the RATS data. (0-7 points: 0-4 points for graphs or analysis results + 0-3 points for their interpretations)
-
-Implement the analyses of Chapter 9 of MABS using the BPRS data. (0-8 points: 0-4 points for graphs or analysis results + 0-4 points for their interpretations)
 
 ## 1) Analyses on RATS data
 
+### Graphs
 ``` {r}
 
 # Graphical display of RATS
@@ -44,11 +41,11 @@ ggplot(RATSL, aes(x = Time, y = weight, linetype = ID)) +
 
 
 ```
+  
 We see that in all groups the weigth seems to increase when time increases. In groups 2 and 3 increase is more clear. Graph shows us that there seems to be a difference at least between Group 1 vs other Groups. Groups 2 ja 3 are more similar. In Group 2 there is one unsual individual, who we migth delete later.
 
+### Standardized graphs
 ``` {r}
-# Standardized graphs
-
 RATSL <- RATSL %>%
   group_by(Time) %>%
   mutate(stweigth = (weight - mean(weight))/sd(weight) ) %>%
@@ -65,12 +62,13 @@ ggplot(RATSL, aes(x = Time, y = stweigth, linetype = ID)) +
   ggtitle("Individual response profiles by group for RATSL data after standardization")
 
 ```
+  
 With standardized values we see more clearly, that there is one outlier observartion in each group. 
 
 In Group 1 the weigth profile seem to be pretty much the same over time points. In Group 3 there is a small decrease in weigths over time. Only in Group 2 the weigth profiles seem to increase.
 
+### Summary graph
 ``` {r}
-# Summary graph
 
 # Number of time, baseline (week 0) included
 n <- RATSL$Time %>% unique() %>% length()
@@ -97,10 +95,11 @@ ggplot(RATSS, aes(x = Time, y = mean, linetype = Group, shape = Group)) +
 
 
 ```
-The mean profiles plot shows that the error bars do not overlap, so it is pretty safe to say there is a difference between all groups.
+  
+The mean profiles plot shows that the error bars do not overlap.
 
+### Mean as a summary measure
 ``` {r}
-# Mean as a summary measure
 
 # Create a summary data by treatment and subject with mean as the summary variable (ignoring baseline week 0).
 RATSL10S <- RATSL %>%
@@ -119,6 +118,7 @@ ggplot(RATSL10S, aes(x = Group, y = mean)) +
   scale_y_continuous(name = "mean(weigth), Times 8-64")
 
 ```
+  
 Here is a plot of mean as a summary variable.  
 We can see three outlier observations, one in each group. Let's remove these and draw the plot again.
 
@@ -137,9 +137,10 @@ ggplot(RATSL10S1, aes(x = Group, y = mean)) +
 
 
 ```
-Now without those three observations, the group summaries look very good.
+ 
+Now without those three observations, the group summaries look very good.  
 
-Next we can test the group difference with t-test.
+Next we can test the group growth difference with t-test.
 
 ``` {r}
 
@@ -150,6 +151,8 @@ t.test(mean ~ Group == 2  | Group ==3, data = RATSL10S1, var.equal = TRUE)
 
 
 # Add the baseline from the original data as a new variable to the summary data
+RATS <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/MABS/master/Examples/data/rats.txt"        , sep = "\t", header = TRUE)
+               
 RATSL10S2 <- RATSL10S %>%
   mutate(baseline = RATS$WD1)
 
@@ -161,9 +164,9 @@ anov <- anova(fit)
 anov
 
 ```
-From t-tests we see that between Groups 1 and 2 and 2 and 3 the mean in weigths differ. Between group 1 and 3 there is no significant difference.  
+From t-tests we see that between Groups 1 and 2 and 2 and 3 the mean in weights differ. Between group 1 and 3 there is no significant difference.  
 
-This means that Group 2 diet is the one that had caused an significant growth in weigth.
+This means that Group 2 diet is the one that caused an significant growth in weigth.
 
 From Anova we see that the baseline RATS is strongly related to the RATS values taken after treatment has begun, but there is no evidence of a group difference even after conditioning on the baseline value.
 
@@ -183,6 +186,8 @@ ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
 
 
 ```
+  
+From the plot we see, that between the two treatments there seem to no clear difference. With both bprs measure decreases with time, so treatments seem to work.
 
 ### Linear regression model
 ```{r}
@@ -194,8 +199,8 @@ summary(BPRS_reg)
 BPRS_reg
 
 ```
-Treatment2 doesn't seem to differ from Treatment1, because p-value is 0.66.
-The the p-value of week is very small, so week has an negative effect on bprs. This means both treatments seems to work, but not differently.
+Treatment2 doesn't seem to differ from Treatment1, because p-value is 0.66.  
+The the p-value of week is very small, so week (time) has an negative effect on bprs. This means both treatments seems to work, but not differently from eachother.  
 However this model assumes independence of the repeated measures of bprs, and this assumption is highly unlikely, so let's move to other models.
 
 ### Random intercept model
@@ -276,5 +281,6 @@ ggplot(BPRSL, aes(x = week, y = fitted, linetype = subject)) +
 
 
 ```
+  
 This graphic underlines how well the random intercept and slope model fits the observed data. Since the model is linear, it looks pretty different from the observed data where there is more curves. However, as a simplification it seems to work okay.
 
