@@ -1,8 +1,9 @@
 
 # About the project
+This is a project done in University of Helsinki in a course __Introduction to Open Data Science__. Project includes different statistical methods, tests and visualizations used in different open source datasets.  
 
-During this course I'd like to become more comfortable using R and it's packages. I've done a few courses with R already, but I still hava a lot to learn. I am excited to do analyses with different data sets and also learn to __visualize__ and to edit data. My friend did this course last year and she recommended it to me.  
 
-***  
+During this course I learnt to be more comfortable using R and it's packages. I was really excited about doing analyses with different data sets and also learning how to visualize and wrangle data better.  
+
 
 My GitHub repository  [can be found here](https://github.com/ripsaniemi/IODS-project).
